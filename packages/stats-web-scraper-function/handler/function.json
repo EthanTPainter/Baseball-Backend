@@ -1,0 +1,18 @@
+{
+  "scriptFile": "__init__.py",
+  "disabled": false,
+  "bindings": [
+    {
+      "name": "req",
+      "direction": "in",
+      "type": "httpTrigger",
+      "authLevel": "anonymous"
+    },
+    {
+      "name": "scraperTimer",
+      "direction": "in",
+      "type": "timerTrigger",
+      "schedule": "0 0 4 * * *"
+    }
+  ]
+}
