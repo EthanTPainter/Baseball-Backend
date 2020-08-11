@@ -51,6 +51,9 @@ typings/
 # Optional npm cache directory
 .npm
 
+# Avoid lib (used for python package store locally)
+lib
+
 # Optional eslint cache
 .eslintcache
 
