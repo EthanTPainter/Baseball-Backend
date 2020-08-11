@@ -54,6 +54,9 @@ typings/
 # Avoid lib (used for python package store locally)
 lib
 
+# Avoid pycache storage stored in git
+*pycache*
+
 # Optional eslint cache
 .eslintcache
 
