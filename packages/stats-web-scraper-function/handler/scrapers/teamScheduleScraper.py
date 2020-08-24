@@ -15,24 +15,33 @@ def scrapeTeamSchedule(teamAbr, teamName):
   recordedGames = []
 
   while trackedGames < currentGames:
+    # Get Game Id from href (if the game has already been played)
+    gameHref = teamSchedule[trackedGames].a["href"];
+    gameId = None
+    if ("gameId" in gameHref):
+      gameId = gameHref[gameHref.index("gameId") + len("gameId="):]
+
     opponentHTML = teamSchedule[trackedGames].select("a > div:nth-of-type(2)")
     resultHTML = teamSchedule[trackedGames].select("a > div:nth-of-type(3) > div")
     gameResult = resultHTML[0].string.upper()
     opponent = opponentHTML[0].string.replace("vs", "").replace("@", "")
 
+    # Check if game is suspended or postponed
     if gameResult == "PPD" or gameResult == "SUSP":
       game = {
         "opponent": opponent,
         "result": "PPD"
       }
       recordedGames.append(game)
+
+    # Check if game is won or lost
     if gameResult == "W" or gameResult == "L":
       game = {
+        "gameId": gameId,
         "opponent": opponent,
         "result": resultHTML[1].string,
         "winner": teamName if gameResult == "W" else opponent
       }
       recordedGames.append(game)
     trackedGames+=1
-
   return recordedGames
