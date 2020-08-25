@@ -1,2 +1,2 @@
 # Baseball-Backend
-Baseball application backend for tracking team or player performance across a baseball season
+Baseball application backend for tracking team or player performance across a baseball season. The frontend application can be found [here](https://github.com/EthanTPainter/Baseball-Frontend)
