@@ -1,0 +1,140 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Lambda for retrieving team statistics from the baseball dynamo table
+
+Parameters:
+  MemorySize:
+    Type: Number
+    Default: 128
+  LogLevel:
+    Type: String
+    Default: debug
+  DynamoTableName:
+    Type: String
+    Default: baseball-table
+  DynamoTableArn:
+    Type: String
+    Default: arn:aws:dynamodb:us-east-1:728079390899:table/baseball-table
+  LogGroupRetentionDays:
+    Type: Number
+    Default: 60
+  ApiGatewayId:
+    Type: String
+    Default: PIPELINE OVERRIDE
+  TeamIdResource:
+    Type: String
+    Default: PIPELINE OVERRIDE
+
+Resources:
+  TeamStatsLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      CodeUri: ./../dist
+      Timeout: 30
+      Handler: ./
+      FunctionName: !Sub ${AWS::StackName}-team-stats
+      MemorySize: !Ref MemorySize
+      Environment:
+        Variables:
+          LOG_LEVEL: !Ref LogLevel
+          DYNAMO_TABLE: !Ref DynamoTableName
+          AWS_REGION_NAME: !Sub ${AWS::Region}
+      AutoPublishAlias: live
+      Tracing: Active
+      DeploymentPreference:
+        Type: AllAtOnce
+      Tags:
+        Product: Baseball
+      Policies:
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:PutLogEvents
+              - logs:CreateLogStream
+              - logs:CreateLogGroup
+            Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:UpdateItem
+              - dynamodb:Query
+              - dynamodb:DeleteItem
+            Resource: !Ref DynamoTableArn
+
+  TeamStatsLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref TeamStatsLambda
+      Principal: apigateway.amazonaws.com
+  
+  TeamStatsLambdaOptions:
+    Type: AWS::ApiGateway::Method
+    DependsOn: TeamStatsLambda
+    Properties:
+      AuthorizationType: NONE
+      RestApiId: !Ref ApiGatewayId
+      ResourceId: !Ref TeamResource
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            ResponseTemplates:
+              application/json: ""
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
+
+  TeamStatsLambdaMethod:
+    Type: AWS::ApiGateway::Method
+    DependsOn: TeamStatsLambda
+    Properties:
+      AuthorizationType: NONE
+      RestApiId: !Ref ApiGatewayId
+      ResourceId: !Ref TeamIdResource
+      HttpMethod: GET
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${TeamStatsLambda.Arn}/invocations"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: "Empty"
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  TeamStatsLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      RetentionInDays: !Ref LogGroupRetentionDays
+      LogGroupName: !Join ["", ["/aws/lambda/", !Ref TeamStatsLambda]]
+
+Outputs:
+  TeamStatsLambdaArn:
+    Value: !GetAtt TeamStatsLambda.Arn
+    Description: Team stats Lambda Arn
