@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: AWS Lambda for scraping team statistics to save in the baseball dynamo table
+Description: AWS Lambda for scraping player statistics to save in the baseball dynamo table
 
 Parameters:
   MemorySize:
@@ -23,21 +23,21 @@ Parameters:
     Default: PIPELINE OVERRIDE
 
 Resources:
-  TeamWebScraperLambda:
+  PlayerWebScraperLambda:
     Type: AWS::Serverless::Function
     Properties:
-      Description: CRON job web scraper for saving team statistics to the baseball dynamo table
+      Description: CRON job web scraper for saving player statistics to the baseball dynamo table
       Runtime: python3.8
       CodeUri: ./../dist
-      Timeout: 30
+      Timeout: 60
       Handler: ./
-      FunctionName: !Sub ${AWS::StackName}-team-web-scraper
+      FunctionName: !Sub ${AWS::StackName}-player-web-scraper
       MemorySize: !Ref MemorySize
       Events:
         Type: Schedule
         Properties:
-          Name: Team Web Scraper Schedule
-          Description: Schedule for triggering the team web scraper lambda (7AM UTC every day)
+          Name: Player Web Scraper Schedule
+          Description: Schedule for triggering the player web scraper lambda (7AM UTC every day)
           Enabled: True
           Schedule: 'cron(0 7 * * ? *)'
       Environment:
@@ -67,20 +67,20 @@ Resources:
               - dynamodb:DeleteItem
             Resource: !Ref DynamoTableArn
 
-  TeamWebScraperLambdaPermission:
+  PlayerWebScraperLambdaPermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref TeamWebScraperLambda
+      FunctionName: !Ref PlayerWebScraperLambda
       Principal: apigateway.amazonaws.com
 
-  TeamWebScraperLambdaLogGroup:
+  PlayerWebScraperLambdaLogGroup:
     Type: AWS::Logs::LogGroup
     Properties: 
       RetentionInDays: !Ref LogGroupRetentionDays
-      LogGroupName: !Join ["", ["/aws/lambda/", !Ref TeamWebScraperLambda]]
+      LogGroupName: !Join ["", ["/aws/lambda/", !Ref PlayerWebScraperLambda]]
 
 Outputs:
-  TeamWebScraperLambdaArn:
-    Value: !GetAtt TeamWebScraperLambda.Arn
-    Description: Team stats web scraper Lambda Arn
+  PlayerWebScraperLambdaArn:
+    Value: !GetAtt PlayerWebScraperLambda.Arn
+    Description: Player stats web scraper Lambda Arn
