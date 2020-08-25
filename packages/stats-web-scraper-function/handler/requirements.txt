@@ -1,4 +1,0 @@
-azure-functions
-requests
-bs4
-json
