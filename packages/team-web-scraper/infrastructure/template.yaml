@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Lambda for scraping team statistics to save in the baseball dynamo table
+
+Parameters:
+  MemorySize:
+    Type: Number
+    Default: 128
+  LogLevel:
+    Type: String
+    Default: debug
+  DynamoTableName:
+    Type: String
+    Default: baseball-table
+  DynamoTableArn:
+    Type: String
+    Default: arn:aws:dynamodb:us-east-1:728079390899:table/baseball-table
+  LogGroupRetentionDays:
+    Type: Number
+    Default: 60
+  ApiGatewayId:
+    Type: String
+    Default: PIPELINE OVERRIDE
+
+Resources:
+  TeamWebScraperLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: CRON job web scraper for saving team statistics to the baseball dynamo table
+      Runtime: python3.8
+      CodeUri: ./../dist
+      Timeout: 30
+      Handler: ./
+      FunctionName: !Sub ${AWS::StackName}-team-web-scraper
+      MemorySize: !Ref MemorySize
+      Events:
+        Type: Schedule
+        Properties:
+          Name: Team Web Scraper Schedule
+          Description: Schedule for triggering the team web scraper lambda (7AM UTC every day)
+          Enabled: True
+          Schedule: 'cron(0 7 * * ? *)'
+      Environment:
+        Variables:
+          LOG_LEVEL: !Ref LogLevel
+          DYNAMO_TABLE: !Ref DynamoTableName
+          AWS_REGION_NAME: !Sub ${AWS::Region}
+      AutoPublishAlias: live
+      Tracing: Active
+      DeploymentPreference:
+        Type: AllAtOnce
+      Tags:
+        Product: Baseball
+      Policies:
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:PutLogEvents
+              - logs:CreateLogStream
+              - logs:CreateLogGroup
+            Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*
+          - Effect: Allow
+            Action:
+              - dynamodb:UpdateItem
+              - dynamodb:Query
+              - dynamodb:DeleteItem
+            Resource: !Ref DynamoTableArn
+
+  TeamWebScraperLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref TeamWebScraperLambda
+      Principal: apigateway.amazonaws.com
+
+  PlayerStatsLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      RetentionInDays: !Ref LogGroupRetentionDays
+      LogGroupName: !Join ["", ["/aws/lambda/", !Ref TeamWebScraperLambda]]
+
+Outputs:
+  TeamWebScraperLambdaArn:
+    Value: !GetAtt TeamWebScraperLambda.Arn
+    Description: Team stats web scraper Lambda Arn
