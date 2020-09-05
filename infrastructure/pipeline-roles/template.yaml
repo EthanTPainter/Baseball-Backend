@@ -1,0 +1,158 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Pipeline roles for the baseball backend
+
+Resources:
+  BuildExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Tags:
+        - Key: Product
+          Value: Baseball
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                Resource: !Sub arn:aws:s3::::*
+
+  PipelineExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Tags:
+        - Key: Product
+          Value: Baseball
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: iam:PassRole
+                Resource:
+                  - !GetAtt PipelineInfrastructureRole.Arn
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateStack
+                  - cloudformation:DeleteStack
+                  - cloudformation:DescribeStacks
+                  - cloudformation:UpdateStack
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:DeleteChangeSet
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:SetStackPolicy
+                  - cloudformation:ValidateTemplate
+                Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:*"
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource: !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:*"
+              - Effect: Allow
+                Action:
+                  - "s3:*"
+                Resource: "*"
+
+  PipelineInfrastructureRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudformation.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Tags:
+        - Key: Product
+          Value: Baseball
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-Pipeline-Policy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codebuild:DeleteProject
+                  - codebuild:UpdateProject
+                  - codebuild:CreateProject
+                Resource: !Sub "arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:*"
+              - Effect: Allow
+                Action:
+                  - codepipeline:GetPipeline
+                  - codepipeline:GetPipelineState
+                  - codepipeline:UpdatePipeline
+                  - codepipeline:DeregisterWebhookWithThirdParty
+                  - codepipeline:RegisterWebhookWithThirdParty
+                  - codepipeline:PutWebhook
+                  - codepipeline:DeletePipeline
+                  - codepipeline:DeleteWebhook
+                  - codepipeline:CreatePipeline
+                Resource: !Sub "arn:aws:codepipeline:${AWS::Region}:${AWS::AccountId}:*"
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateChangeSet
+                Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:*"
+
+  InfrastructureRole:
+
+
+Outputs:
+  # Execution Role
+  BaseballBuildExecutionRoleId:
+    Value: !Ref BuildExecutionRole
+    Description: Logical ID for the baseball build execution role
+    Export:
+      Name: BaseballBuildExecutionRoleId
+  BaseballBuildExecProductutionRoleArn:
+    Value: !GetAtt BuildExecutionRole.Arn
+    Description: Arn for the baseball build execution role
+    Export:
+      Name: BaseballBuildExecutionRoleArn
+
+  # Pipeline Execution Role
+  BaseballPipelineExecutionRoleId:
+    Value: !Ref PipelineExecutionRole
+    Description: Logical ID for the baseball pipeline execution role
+    Export:
+      Name: BaseballPipelineExecutionRoleId
+  BaseballPipelineExecutionRoleArn:
+    Value: !GetAtt PipelineExecutionRole.Arn
+    Description: Arn for the baseball pipeline exection role arn
+    Export:
+      Name: BaseballPipelineExecutionRoleArn
+  
