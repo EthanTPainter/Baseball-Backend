@@ -5,7 +5,7 @@ Description: DynamoDB database for baseball application backend
 Parameters:
   TableName:
     Type: String
-    Default: secure-storage
+    Default: baseball-table
   ReadCapacityUnits:
     Type: String
     Default: 2
@@ -44,6 +44,9 @@ Resources:
                 - application-autoscaling.amazonaws.com
             Action:
               - sts:AssumeRole
+      Tags:
+        - Key: Product
+          Value: Baseball
 
   ScalingRolePolicy:
     Type: AWS::IAM::Policy
@@ -66,6 +69,9 @@ Resources:
               - cloudwatch:SetAlarmState
               - cloudwatch:DeleteAlarms
             Resource: "*"
+      Tags:
+        - Key: Product
+          Value: Baseball
 
   BaseballDynamoTable:
     Type: AWS::DynamoDB::Table
@@ -86,8 +92,8 @@ Resources:
         AttributeName: ttl
         Enabled: true
       Tags:
-        - Key: "Product"
-          Value: "Baseball"
+        - Key: Product
+          Value: Baseball
 
   ScalableTableWriteTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
