@@ -1,0 +1,150 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: DynamoDB database for baseball application backend
+
+Parameters:
+  TableName:
+    Type: String
+    Default: secure-storage
+  ReadCapacityUnits:
+    Type: String
+    Default: 2
+  WriteCapacityUnits:
+    Type: String
+    Default: 2
+  MaxReadCapacityUnits:
+    Type: String
+    Default: 100
+  MaxWriteCapacityUnits:
+    Type: String
+    Default: 100
+  TargetScalingValue:
+    Type: Number
+    Default: 70
+    Description: The percentage of resources consumed that triggers scaling
+  ScaleInCooldownValue:
+    Type: Number
+    Default: 60
+    Description: The amount of time, in seconds, after a scale-in activity completes before another scale in activity can start
+  ScaleOutCooldownValue:
+    Type: Number
+    Default: 60
+    Description: The amount of time, in seconds, after a scale-out activity completes before another scale-out activity can start
+
+Resources:
+  ScalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - application-autoscaling.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  ScalingRolePolicy:
+    Type: AWS::IAM::Policy
+    DependsOn: [ScalingRole]
+    Properties:
+      Roles:
+        - !Ref ScalingRole
+      PolicyName: ScalingRolePolicyPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - application-autoscaling:*
+              - dynamodb:DescribeTable
+              - dynamodb:UpdateTable
+              - cloudwatch:PutMetricAlarm
+              - cloudwatch:DescribeAlarms
+              - cloudwatch:GetMetricStatistics
+              - cloudwatch:SetAlarmState
+              - cloudwatch:DeleteAlarms
+            Resource: "*"
+
+  BaseballDynamoTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableName
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: !Ref ReadCapacityUnits
+        WriteCapacityUnits: !Ref WriteCapacityUnits
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: "Product"
+          Value: "Baseball"
+
+  ScalableTableWriteTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    DependsOn: [ScalingRolePolicy, BaseballDynamoTable]
+    Properties:
+      MaxCapacity: !Ref MaxWriteCapacityUnits
+      MinCapacity: !Ref WriteCapacityUnits
+      ResourceId: !Sub table/${TableName}
+      RoleARN: !GetAtt ScalingRole.Arn
+      ScalableDimension: dynamodb:table:WriteCapacityUnits
+      ServiceNamespace: dynamodb
+
+  ScalableTableWritePolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    DependsOn: [ScalingRolePolicy, BaseballDynamoTable]
+    Properties:
+      PolicyName: ScalableTablePolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId:
+        Ref: ScalableTableWriteTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: !Ref TargetScalingValue
+        ScaleInCooldown: !Ref ScaleInCooldownValue
+        ScaleOutCooldown: !Ref ScaleOutCooldownValue
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBWriteCapacityUtilization
+    
+  ScalableTableReadTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    DependsOn: [ScalingRolePolicy, BaseballDynamoTable]
+    Properties:
+      MaxCapacity: !Ref MaxReadCapacityUnits
+      MinCapacity: !Ref ReadCapacityUnits
+      ResourceId: !Sub table/${TableName}
+      RoleARN: !GetAtt ScalingRole.Arn
+      ScalableDimension: dynamodb:table:ReadCapacityUnits
+      ServiceNamespace: dynamodb
+
+  ScalableTableReadPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    DependsOn: [ScalingRolePolicy, BaseballDynamoTable]
+    Properties:
+      PolicyName: ScalableTablePolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId:
+        Ref: ScalableTableReadTarget
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: !Ref TargetScalingValue
+        ScaleInCooldown: !Ref ScaleInCooldownValue
+        ScaleOutCooldown: !Ref ScaleOutCooldownValue
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBReadCapacityUtilization
+
+Outputs:
+  BaseballDynamoTableName:
+    Value: !Ref BaseballDynamoTable
+    Description: secure storage dynamo table name
+  BaseballDynamoTableArn:
+    Value: !GetAtt BaseballDynamoTable.Arn
+    Description: secure storage dynamo table arn
