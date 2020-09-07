@@ -28,9 +28,9 @@ Resources:
     Properties:
       Description: CRON job web scraper for saving team statistics to the baseball dynamo table
       Runtime: python3.8
-      CodeUri: ./../dist
+      CodeUri: src
       Timeout: 30
-      Handler: ./
+      Handler: handler.main
       FunctionName: !Sub ${AWS::StackName}-team-web-scraper
       MemorySize: !Ref MemorySize
       Events:
