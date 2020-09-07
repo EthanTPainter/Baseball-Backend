@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: The gateway for the baseball application backend
+
+Parameters:
+  GatewayName:
+    Type: String
+    Default: baseball-api
+
+Resources:
+  BaseballApi:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: !Ref GatewayName
+      Description: Gateway for the baseball application backend
+      Tags:
+        - Key: Product
+          Value: Baseball
+  
+  # Root resource
+  PlayerResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref BaseballApi
+      ParentId: !GetAtt [BaseballApi, RootResourceId]
+      PathPart: "player"
+
+  GameResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref BaseballApi
+      ParentId: !GetAtt [BaseballApi, RootResourceId]
+      PathPart: "game"
+
+  TeamResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref BaseballApi
+      ParentId: !GetAtt [BaseballApi, RootResourceId]
+      PathPart: "team"
+
+  PlayerIdResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref BaseballApi
+      ParentId: !Ref PlayerResource
+      PathPart: "{id}"
+
+  GameIdResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref BaseballApi
+      ParentId: !Ref GameResource
+      PathPart: "{id}"
+
+  TeamIdResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref BaseballApi
+      ParentId: !Ref GameResource
+      PathPart: "{id}"
+   
+Outputs:
+  BaseballApiArn:
+    Description: The baseball backend api id
+    Value: !Ref BaseballApi
+  PlayerResource:
+    Description: The player resource on the api gateway
+    Value: !Ref PlayerResource
+  GameResource:
+    Description: The game resource on the api gateway
+    Value: !Ref GameResource
+  TeamResource:
+    Description: The team resource on the api gateway
+    Value: !Ref TeamResource
+  PlayerIdResource:
+    Description: The player id resource on the api gateway
+    Value: !Ref PlayerIdResource
+  TeamIdResource:
+    Description: The team id resource on the api gateway
+    Value: !Ref TeamIdResource
