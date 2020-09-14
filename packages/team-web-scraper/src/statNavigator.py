@@ -45,11 +45,11 @@ def getLeadingBattingStats(teamAbr):
       "id": battingAvgPlayerId,
       "val": battingAvg,
     },
-    "HRs": {
+    "HR": {
       "id": homeRunsPlayedId,
       "val": homeRuns
     },
-    "RBIs": {
+    "RBI": {
       "id": runsBattedInPlayedId,
       "val": runsBattedIn
     },
@@ -62,7 +62,6 @@ def getLeadingBattingStats(teamAbr):
       "val": hits
     }
   }
-
   return leads
 
 def getLeadingPitchingStats(teamAbr):
@@ -91,7 +90,7 @@ def getLeadingPitchingStats(teamAbr):
 
   # Create json blob as return value
   leads = {
-    "Ws": {
+    "W": {
       "id": winsPlayedId,
       "val": wins
     },
@@ -99,11 +98,11 @@ def getLeadingPitchingStats(teamAbr):
       "id": earnedRunAveragePlayedId,
       "val": earnedRunAverage
     },
-    "Ks": {
+    "K": {
       "id": strikeoutsPlayedId,
       "val": strikeouts
     },
-    "SVs": {
+    "SV": {
       "id": savesPlayedId,
       "val": saves
     },
@@ -112,7 +111,6 @@ def getLeadingPitchingStats(teamAbr):
       "val": holds
     }
   }
-
   return leads
 
 def getTeamBattingStats(teamAbr):
