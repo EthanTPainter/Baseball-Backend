@@ -22,7 +22,7 @@ teamNames = [
   'Athletics', 'Astros', 'Rangers', 'Angels', 'Mariners',
   'Braves', 'Marlins', 'Mets', 'Phillies', 'Nationals',
   'Cubs', 'Cardinals', 'Brewers', 'Reds', 'Pirates',
-  'Dodgers', 'Padres', 'Rockies', 'Diamonbacks', 'Giants'
+  'Dodgers', 'Padres', 'Rockies', 'Diamondbacks', 'Giants'
 ]
 
 # Python Lambda Docs: https://docs.aws.amazon.com/lambda/latest/dg/python-handler.html
