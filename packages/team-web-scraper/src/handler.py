@@ -4,7 +4,7 @@ import json
 import logging
 import asyncio
 
-from dynamoClient import getTeamRecord
+from dynamoClient import getTeamRecord, updateTeamRecord
 from statNavigator import getTeamRecord, getLeadingBattingStats, getLeadingPitchingStats, getTeamBattingStats, getTeamPitchingStats, getTeamFieldingStats
 
 # Team abbreviations
@@ -39,7 +39,6 @@ def main(event, context):
 
     # team statistics
     # All stats recorded as strings in each json blob
-    # So convert stats to other types during new record creation
     teamRecord = getTeamRecord(abr)
     battingLeaders = getLeadingBattingStats(abr)
     pitchingLeaders = getLeadingPitchingStats(abr)
@@ -48,80 +47,80 @@ def main(event, context):
     teamFielding = getTeamFieldingStats(abr)
 
     newRecord = {
-      "Wins": int(teamRecord["W"]),
-      "Losses": int(teamRecord["L"]),
-      "divisionRank": teamRecord["divisionalRank"],
-      "GamesPlayed": int(teamRecord["W"]) + int(teamRecord["L"]),
+      "Wins": teamRecord["W"],
+      "Losses": teamRecord["L"],
+      "DivisionRank": teamRecord["divisionalRank"],
+      "GamesPlayed": teamRecord["W"] + teamRecord["L"],
       "Hitting": {
-        "atBats": int(teamBatting["AB"]),
-        "Runs": int(teamBatting["R"]),
-        "Hits": int(teamBatting["H"]),
-        "Doubles": int(teamBatting["2B"]),
-        "Triples": int(teamBatting["3B"]),
-        "HomeRuns": int(teamBatting["HR"]),
-        "RunsBattedIn": int(teamBatting["RBI"]),
-        "TotalBases": int(teamBatting["TB"]),
-        "Walks": int(teamBatting["BB"]),
-        "Strikeouts": int(teamBatting["SO"]),
-        "Average": float(teamBatting["AVG"]),
-        "Slugging": float(teamBatting["SLG"]),
-        "OnBasePercentage": float(teamBatting["OBP"]),
-        "OnBaseAndSlugging": float(teamBatting["OPS"]),
+        "atBats": teamBatting["AB"],
+        "Runs": teamBatting["R"],
+        "Hits": teamBatting["H"],
+        "Doubles": teamBatting["2B"],
+        "Triples": teamBatting["3B"],
+        "HomeRuns": teamBatting["HR"],
+        "RunsBattedIn": teamBatting["RBI"],
+        "TotalBases": teamBatting["TB"],
+        "Walks": teamBatting["BB"],
+        "Strikeouts": teamBatting["SO"],
+        "Average": teamBatting["AVG"],
+        "Slugging": teamBatting["SLG"],
+        "OnBasePercentage": teamBatting["OBP"],
+        "OnBaseAndSlugging": teamBatting["OPS"],
         "LeadingBattingAverage": {
           "playerId": battingLeaders["AVG"]["id"],
-          "value": float(battingLeaders["AVG"]["val"]),
+          "value": battingLeaders["AVG"]["val"],
         },
         "LeadingHomeRuns": {
           "playerId": battingLeaders["HR"]["id"],
-          "value": int(battingLeaders["HR"]["val"])
+          "value": battingLeaders["HR"]["val"]
         },
         "LeadingRunsBattedIn": {
           "playerId": battingLeaders["RBI"]["id"],
-          "value": int(battingLeaders["RBI"]["val"])
+          "value": battingLeaders["RBI"]["val"]
         },
         "LeadingOnBasePercentage": {
           "playerId": battingLeaders["OBP"]["id"],
-          "value": float(battingLeaders["OBP"]["val"])
+          "value": battingLeaders["OBP"]["val"]
         },
         "LeadingHits": {
           "playerId": battingLeaders["H"]["id"],
-          "value": int(battingLeaders["H"]["val"])
+          "value": battingLeaders["H"]["val"]
         }
       },
       "Pitching": {
-        "InningsPitched": float(teamPitching["IP"]),
-        "QualityStarts": int(teamPitching["QS"]),
-        "Wins": int(teamPitching["W"]),
-        "Losses": int(teamPitching["L"]),
-        "Saves": int(teamPitching["SV"]),
-        "Holds": int(teamPitching["HLD"]),
-        "Hits": int(teamPitching["H"]),
-        "HomeRuns": int(teamPitching["HR"]),
-        "Walks": int(teamPitching["BB"]),
-        "Strikeouts": int(teamPitching["K"]),
-        "StrikeoutsPerNine": float(teamPitching["K/9"]),
-        "PitchesPerStart": float(teamPitching["P/S"]),
-        "WalksPlusHitsPerInningsPitched": float(teamPitching["WHIP"]),
-        "EarnedRunAverage": float(teamPitching["ERA"]),
+        "InningsPitched": teamPitching["IP"],
+        "QualityStarts": teamPitching["QS"],
+        "Wins": teamPitching["W"],
+        "Losses": teamPitching["L"],
+        "Saves": teamPitching["SV"],
+        "Holds": teamPitching["HLD"],
+        "Hits": teamPitching["H"],
+        "HomeRuns": teamPitching["HR"],
+        "Walks": teamPitching["BB"],
+        "Strikeouts": teamPitching["K"],
+        "StrikeoutsPerNine": teamPitching["K/9"],
+        "PitchesPerStart": teamPitching["P/S"],
+        "WalksPlusHitsPerInningsPitched": teamPitching["WHIP"],
+        "EarnedRunAverage": teamPitching["ERA"],
         "LeadingWins": {
           "playerId": pitchingLeaders["W"]["id"],
-          "value": int(pitchingLeaders["W"]["val"]),
+          "value": pitchingLeaders["W"]["val"],
         },
         "LeadingEarnedRunAverage": {
           "playerId": pitchingLeaders["ERA"]["id"],
-          "value": float(pitchingLeaders["ERA"]["val"])
+          "value": pitchingLeaders["ERA"]["val"]
         },
         "LeadingStrikeouts": {
           "playerId": pitchingLeaders["K"]["id"],
-          "value": int(pitchingLeaders["K"]["val"])
+          "value": pitchingLeaders["K"]["val"]
         },
         "LeadingSaves": {
           "playerId": pitchingLeaders["SV"]["id"],
-          "value": int(pitchingLeaders["SV"]["val"])
+          "value": pitchingLeaders["SV"]["val"]
         },
         "LeadingHolds": {
           "playerId": pitchingLeaders["HLD"]["id"],
-          "value": int(pitchingLeaders["HLD"]["val"])
+          "value": pitchingLeaders["HLD"]["val"]
         }
       },
       "Fielding": {
@@ -129,10 +128,9 @@ def main(event, context):
         "FieldingPercentage": teamFielding["FP"]
       }
     }
-    print(newRecord)
 
     # Update team record with retrieved statistics
-    # updateTeamRecord(teamId, tableName, newRecord)
+    updateTeamRecord(teamId, tableName, newRecord)
 
 
   return {
