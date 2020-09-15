@@ -8,19 +8,18 @@ from dynamoClient import getTeamRecord, updateTeamRecord
 from statNavigator import getTeamRecord, getLeadingBattingStats, getLeadingPitchingStats, getTeamBattingStats, getTeamPitchingStats, getTeamFieldingStats
 
 # Team abbreviations
-teamAbrs = ['nyy']
-# teamAbrs = [
-#   'nyy', 'tb', 'tor', 'bal', 'bos',
-#   'min', 'cle', 'chw', 'kc', 'det',
-#   'oak', 'hou', 'tex', 'laa', 'sea',
-#   'atl', 'mia', 'nym', 'phi', 'wsh',
-#   'chc', 'stl', 'mil', 'cin', 'pit',
-#   'lad', 'sd', 'col', 'ari', 'sf'
-# ]
+teamAbrs = [
+  'nyy', 'tb', 'tor', 'bal', 'bos',
+  'min', 'cle', 'chw', 'kc', 'det',
+  'oak', 'hou', 'tex', 'laa', 'sea',
+  'atl', 'mia', 'nym', 'phi', 'wsh',
+  'chc', 'stl', 'mil', 'cin', 'pit',
+  'lad', 'sd', 'col', 'ari', 'sf'
+]
 teamNames = [
   'Yankees', 'Rays', 'Blue Jays', 'Orioles', 'Red Sox',
   'Twins', 'Indians', 'White Sox', 'Royals', 'Tigers',
-  'Atheltics', 'Astros', 'Rangers', 'Angels', 'Mariners',
+  'Athletics', 'Astros', 'Rangers', 'Angels', 'Mariners',
   'Braves', 'Marlins', 'Mets', 'Phillies', 'Nationals',
   'Cubs', 'Cardinals', 'Brewers', 'Reds', 'Pirates',
   'Dodgers', 'Padres', 'Rockies', 'Diamonbacks', 'Giants'
