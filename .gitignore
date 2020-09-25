@@ -96,4 +96,6 @@ nginx.conf
 .env-*
 .params-*
 *.aws-sam
-*.toml 
+*.toml
+
+**/*/dist
