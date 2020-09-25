@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: "$NODE_RUNTIME_VERSION"
+      golang: "$GOLANG_RUNTIME_VERSION"
+    commands:
+      - echo "Switching to private registry at $NPM_REGISTRY"
+      - npm config set registry $NPM_REGISTRY
+      - echo "Add permissions to run scripts"
+      - chmod -R 755 ./bin/*
+      - find . -name ".npmrc" -exec ./bin/registry-change.sh {} \;
+      - echo "Changing  package-lock.json files registry to $NPM_REGISTRY"
+      - find . -name "package-lock.json" -exec ./bin/registry-change.sh {} \;
+      - ./bin/exec-command.sh "npm install"
+
+  pre_build:
+    commands:
+      - ./bin/exec-command.sh "npm run lint"
+
+  build:
+    commands:
+      - ./bin/exec-command.sh "npm run build"
+      - ./bin/exec-command.sh "npm run test"
+      - ./bin/exec-command.sh "npm run sam:build"
+
+artifacts:
+  files:
+    - packages/*/infrastructure/template.package.yaml
+    - packages/*/infrastructure/params-*.json
+    - infrastructure/*/infrastructure/params-*.json

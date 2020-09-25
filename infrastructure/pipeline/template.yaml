@@ -1,0 +1,252 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Deployment pipeline for scripter services
+Parameters:
+  BranchName:
+    Type: String
+    Default: master
+  BuildSpecPath:
+    Type: String
+    Default: infrastructure/pipeline
+  ContainerImage:
+    Type: String
+    Default: "aws/codebuild/nodejs:8.11.0"
+  GitHubOAuthParam:
+    Type: String
+    Default: "/devops/system/baseball-github-oauth"
+  GitHubSecretParam:
+    Type: String
+    Default: "/devops/system/baseball-webhook-secret"
+  GitHubOwner:
+    Type: String
+    Default: ethantpainter
+  MemorySize:
+    Type: String
+    Default: 128
+  NodeRuntimeVersion:
+    Type: String
+    Default: 12.x
+  GolangRuntimeVersion:
+    Type: String
+    Default: 1.x
+  RepositoryName:
+    Type: String
+    Default: baseball-backend
+
+Resources:
+  GitHubOAuthToken:
+    Type: Custom::GitHubOAuthToken
+    Properties:
+      ServiceToken: !ImportValue SecretsLambdaArn
+      SSMKey: !Ref GitHubOAuthParam
+
+  GitHubSecret:
+    Type: Custom::GitHubSecret
+    Properties:
+      ServiceToken: !ImportValue SecretsLambdaArn
+      SSMKey: !Ref GitHubSecretParam
+
+  PipelineWebhook:
+    Type: AWS::CodePipeline::Wehook
+    Properties:
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: !GetAtt GitHubSecret.Value
+      Filters:
+        - JsonPath: $.ref
+          MatchEquals: "refs/heads/{Branch}"
+      TargetPipeline: !Ref Pipeline
+      TargetAction: GitHub
+      Name: !Sub ${AWS::StackName}-webhook
+      TargetPipelineVersion: !GetAtt Pipeline.Version
+      RegisterWithThirdParty: true
+
+  BuildRunner:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub ${AWS::StackName}-build
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        EnvironmentVariables:
+          - Name: NODE_RUNTIME_VERSION
+            Type: PLAINTEXT
+            Value: !Ref NodeRuntimeVersion
+          - Name: GOLANG_RUNTIME_VERSION
+            Type: PLAINTEXT
+            Value: !Ref GolangRuntimeVersion
+        Image: aws/codebuild/standard:latest
+        Type: LINUX_CONTAINER
+      ServiceRole: !ImportValue BaseballBuildExecutionRoleId
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: !Sub ${BuildSpecPath}/buildspec-build.yaml
+      Tags:
+        - Key: Product
+          Value: Baseball
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Ref AWS::StackName
+      RoleArn: !ImportValue BaseballPipelineExecutionRole
+      ArtifactStore:
+        Type: S3
+        Location: !ImportValue ArtifactBucketStack
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: GitHub
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Version: 1
+                Provider: GitHub
+              Configuration:
+                Owner: !Ref GitHubOwner
+                Repo: !Ref RepositoryName
+                Branch: !Ref BranchName
+                OAuthToken: !GetAtt GitHubOAuthToken.Value
+                PollForSourceChanges: false
+              OutputArtifacts:
+                - Name: SourceOutput
+              RunOrder: 1
+        - Name: Infrastructure
+          Actions:
+            - Name: DeployPipeline
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: PipelineStackOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Ref AWS::StackName
+                OutputFileName: pipeline-stack-output.json
+                TemplatePath: SourceOutput::Infrastructure/pipeline/template.yaml
+                RoleArn: !ImportValue BaseballPipelineInfrastructureRoleArn
+                Capabilities: CAPABILITY_NAMED_IAM
+                ParameterOverrides: !Sub `
+                  {
+                    "BranchName": "${BranchName}"
+                  }`
+            - Name: Gateway
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: GatewayStackOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Sub "${AWS::StackName}-gateway"
+                OutputFileName: gateway-stack-output.json
+                TemplatePath: SourceOutput::Infrastructure/gateway/template.yaml
+                RoleArn: !ImportValue BaseballPipelineInfrastructureRoleArn
+                Capabilities: CAPABILITY_NAMED_IAM
+            - Name: Database
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - SourceOutput
+              OutputArtifacts:
+                - DatabaseStackOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Sub "${AWS::StackName}-database"
+                OutputFileName: database-stack-output.json
+                TemplatePath: SourceOutput::Infrastructure/database/template.yaml
+                RoleArn: !ImportValue BaseballPipelineInfrastructureRoleArn
+                Capabilities: CAPABILITY_NAMED_IAM
+        - Name: Build
+          Actions:
+            - Name: Build-Test
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: BuildOutput
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref BuildRunner
+              RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: PlayerStatsLambda
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: PlayerStatsLambdaStackOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Sub ${AWS::StackName}-player-stats
+                OutputFileName: player-stats-lambda-stack-output.json
+                TemplatePath: SourceOutput::packages/player-stats/infrastructure/template.yaml
+                RoleArn: !ImportValue Baseball
+            - Name: TeamStatsLambda
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: TeamStatsLambdaStackOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Sub ${AWS::StackName}-team-stats
+                OutputFileName: team-stats-lambda-stack-output.json
+                TemplatePath: SourceOutput::packages/team-stats/infrastructure/template.yaml
+                RoleArn: !ImportValue Baseball
+            - Name: PlayerWebScraperLambda
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: PlayerWebScraperLambdaStackOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Sub ${AWS::StackName}-player-web-scraper
+                OutputFileName: SourceOutput::packages/player-web-scraper/infrastructure/template.yaml
+                RoleArn: !ImportValue Baseball
+            - Name: TeamWebScraperLambda
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: TeamWebScraperLambdaStackOutput
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                StackName: !Sub ${AWS::StackName}-team-web-scraper
+                OutputFileName: SourceOutput::packages/team-web-scraper/infrastructure/template.yaml
+                RoleArn: !ImportValue Baseball
+      Tags:
+        - Key: Product
+          Value: Baseball
