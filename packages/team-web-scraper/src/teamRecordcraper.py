@@ -1,4 +1,3 @@
-import json
 import requests
 from bs4 import BeautifulSoup
 
@@ -43,5 +42,5 @@ def scrapeTeamSchedule(teamAbr, teamName):
         "winner": teamName if gameResult == "W" else opponent
       }
       recordedGames.append(game)
-    trackedGames+=1
+    trackedGames += 1
   return recordedGames
