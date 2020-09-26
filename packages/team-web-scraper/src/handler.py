@@ -66,23 +66,23 @@ def main(event, context):
         "OnBasePercentage": teamBatting["OBP"],
         "OnBaseAndSlugging": teamBatting["OPS"],
         "LeadingBattingAverage": {
-          "playerId": battingLeaders["AVG"]["id"],
+          "playerID": battingLeaders["AVG"]["id"],
           "value": battingLeaders["AVG"]["val"],
         },
         "LeadingHomeRuns": {
-          "playerId": battingLeaders["HR"]["id"],
+          "playerID": battingLeaders["HR"]["id"],
           "value": battingLeaders["HR"]["val"]
         },
         "LeadingRunsBattedIn": {
-          "playerId": battingLeaders["RBI"]["id"],
+          "playerID": battingLeaders["RBI"]["id"],
           "value": battingLeaders["RBI"]["val"]
         },
         "LeadingOnBasePercentage": {
-          "playerId": battingLeaders["OBP"]["id"],
+          "playerID": battingLeaders["OBP"]["id"],
           "value": battingLeaders["OBP"]["val"]
         },
         "LeadingHits": {
-          "playerId": battingLeaders["H"]["id"],
+          "playerID": battingLeaders["H"]["id"],
           "value": battingLeaders["H"]["val"]
         }
       },
@@ -102,23 +102,23 @@ def main(event, context):
         "WalksPlusHitsPerInningsPitched": teamPitching["WHIP"],
         "EarnedRunAverage": teamPitching["ERA"],
         "LeadingWins": {
-          "playerId": pitchingLeaders["W"]["id"],
+          "playerID": pitchingLeaders["W"]["id"],
           "value": pitchingLeaders["W"]["val"],
         },
         "LeadingEarnedRunAverage": {
-          "playerId": pitchingLeaders["ERA"]["id"],
+          "playerID": pitchingLeaders["ERA"]["id"],
           "value": pitchingLeaders["ERA"]["val"]
         },
         "LeadingStrikeouts": {
-          "playerId": pitchingLeaders["K"]["id"],
+          "playerID": pitchingLeaders["K"]["id"],
           "value": pitchingLeaders["K"]["val"]
         },
         "LeadingSaves": {
-          "playerId": pitchingLeaders["SV"]["id"],
+          "playerID": pitchingLeaders["SV"]["id"],
           "value": pitchingLeaders["SV"]["val"]
         },
         "LeadingHolds": {
-          "playerId": pitchingLeaders["HLD"]["id"],
+          "playerID": pitchingLeaders["HLD"]["id"],
           "value": pitchingLeaders["HLD"]["val"]
         }
       },
