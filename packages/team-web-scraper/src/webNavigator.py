@@ -20,8 +20,6 @@ def getTeamBattingStatsPage(teamAbbreviation):
   page = requests.get(baseUrl)
   soup = BeautifulSoup(page.content, 'html.parser')
   tableBodies = soup.select("tbody > tr:last-child")
-  # There are 2 tables, each with 2 bodies. First is for general stats, Second is advanced
-  # Possible TODO: add second table body to team stats
   battingStatsHTML = tableBodies[1]
   return battingStatsHTML
 
@@ -37,8 +35,6 @@ def getTeamPitchingStatsPage(teamAbbreviation):
   page = requests.get(baseUrl)
   soup = BeautifulSoup(page.content, 'html.parser')
   tableBodies = soup.select("tbody > tr:last-child")
-  # There are 2 tables, each with 2 bodies. First is for general stats, Second is advanced
-  # Possible TODO: add second table body to team stats
   pitchingStatsHTML = tableBodies[1]
   return pitchingStatsHTML
 
