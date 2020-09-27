@@ -12,12 +12,12 @@ Parameters:
   DynamoTableName:
     Type: String
     Default: baseball-table
-  DynamoTableArn:
-    Type: String
-    Default: arn:aws:dynamodb:us-east-1:728079390899:table/baseball-table
   LogGroupRetentionDays:
     Type: Number
     Default: 60
+  DynamoTableArn:
+    Type: String
+    Default: PIPELINE OVERRIDE
   ApiGatewayId:
     Type: String
     Default: PIPELINE OVERRIDE
