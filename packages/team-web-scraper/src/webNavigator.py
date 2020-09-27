@@ -1,13 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
 
-def getTeamSchedulePage(teamAbbreviation):
-  baseUrl = f"https://espn.com/mlb/team/_/name/{teamAbbreviation}"
-  page = requests.get(baseUrl)
-  soup = BeautifulSoup(page.content, 'html.parser')
-  teamScheduleHTML = soup.select("section .club-schedule > ul > ul:nth-of-type(1) > li")
-  return teamSchedule
-
 def getTeamRecordPage(teamAbbreviation):
   baseUrl = f"https://espn.com/mlb/team/_/name/{teamAbbreviation}"
   page = requests.get(baseUrl)
