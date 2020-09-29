@@ -6,89 +6,6 @@ import (
 	"github.com/ethantpainter/Baseball-Backend/packages/team-stats/src/internal"
 )
 
-type teamStatsDynamoModel struct {
-	Wins        int
-	Losses      int
-	GamesPlayed int
-
-	Hitting struct {
-		Runs                      int
-		Hits                      int
-		Doubles                   int
-		Triples                   int
-		RunsBattedIn              int
-		PitchesPerPlateAppearance int
-		Walks                     int
-		Strikeouts                int
-		Average                   float32
-		Slugging                  float32
-		OnBasePercentage          float32
-		LeadingBattingAverage     struct {
-			playerID string
-			value    float32
-		}
-		LeadingHomeRuns struct {
-			playerID string
-			value    float32
-		}
-		LeadingRunsBattedIn struct {
-			playerID string
-			value    float32
-		}
-		LeadingOnBasePercentage struct {
-			playerID string
-			value    float32
-		}
-		LeadingHits struct {
-			playerID string
-			value    float32
-		}
-	}
-
-	Pitching struct {
-		InningsPitched                 float32
-		Runs                           int
-		Hits                           int
-		Doubles                        int
-		Triples                        int
-		HomeRuns                       int
-		Walks                          int
-		Strikeouts                     int
-		StrikeoutsPerNine              int
-		PitchesPerStart                float32
-		WalksPlusHitsPerInningsPitched float32
-		EarnedRunAverage               float32
-		Saves                          float32
-		StolenBases                    int
-
-		LeadingWins struct {
-			playerID string
-			value    int
-		}
-		LeadingEarnedRunAverage struct {
-			playerID string
-			value    float32
-		}
-		LeadingStrikeouts struct {
-			playerID string
-			value    int
-		}
-		LeadingSaves struct {
-			playerID string
-			value    int
-		}
-		LeadingHolds struct {
-			playerID string
-			value    int
-		}
-	}
-
-	Fielding struct {
-		Errors             int
-		FieldingPercentage float32
-	}
-}
-
 // import ("fmt" "context" "github.com/aws/aws-lambda-go/lambda")
 // type MyEvent string {
 //   Name string `json:"name"`
@@ -124,17 +41,17 @@ func main() {
 
 	teamID := teamIDs[0]
 	tableName := "test-table"
-	teamRecord, _, getErr := internal.GetTeamRecord(teamID, tableName)
+	teamRecord, teamKey, getErr := internal.GetTeamRecord(teamID, tableName)
 	// Error encountered during team record retrieval
 	if getErr != nil {
 		return
 	}
 
-	// formattedRecord, formatErr := internal.FormatTeamRecord(teamRecord, teamKey, tableName)
-	// // Error encountered during formatting team record
-	// if formatErr != nil {
-	// 	return
-	// }
+	formattedRecord, formatErr := internal.FormatTeamRecord(teamRecord, teamKey, tableName)
+	// Error encountered during formatting team record
+	if formatErr != nil {
+		return
+	}
 
-	fmt.Println(teamRecord)
+	fmt.Println(formattedRecord)
 }
