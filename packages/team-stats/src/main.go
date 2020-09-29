@@ -3,10 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/ethantpainter/Baseball-Backend/packages/team-stats/src/internal"
 )
 
 type teamStatsDynamoModel struct {
@@ -104,13 +101,15 @@ type teamStatsDynamoModel struct {
 // }
 
 func main() {
-	teamAbrs := [30]string{"nyy", "tb", "tor", "bal", "bos",
+	teamAbrs := [30]string{
+		"nyy", "tb", "tor", "bal", "bos",
 		"min", "cle", "chw", "kc", "det",
 		"oak", "hou", "tex", "laa", "sea",
 		"atl", "mia", "nym", "phi", "wsh",
 		"chc", "stl", "mil", "cin", "pit",
 		"lad", "sd", "col", "ari", "sf"}
-	teamNames := [30]string{"Yankees", "Rays", "Blue Jays", "Orioles", "Red Sox",
+	teamNames := [30]string{
+		"Yankees", "Rays", "Blue Jays", "Orioles", "Red Sox",
 		"Twins", "Indians", "White Sox", "Royals", "Tigers",
 		"Athletics", "Astros", "Rangers", "Angels", "Mariners",
 		"Braves", "Marlins", "Mets", "Phillies", "Nationals",
@@ -124,53 +123,6 @@ func main() {
 	}
 
 	var teamID = teamIDs[0]
-	var teamRecord = getTeamRecord(teamID, "test-table")
+	var teamRecord = internal.GetTeamRecord(teamID, "test-table")
 	fmt.Println(teamRecord)
-}
-
-func getTeamRecord(teamID string, tableName string) string {
-	teamKey := "team#" + teamID
-	fmt.Printf("TeamId: %s", teamKey)
-
-	// Create session
-	sess := session.Must(session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1"),
-	}))
-
-	// Create new instance of service client
-	svc := dynamodb.New(sess)
-	input := &dynamodb.GetItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"partitionKey": {
-				S: aws.String(teamKey),
-			},
-		},
-		TableName: aws.String(tableName),
-	}
-
-	// Retrieve dynamo record
-	result, err := svc.GetItem(input)
-	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case dynamodb.ErrCodeProvisionedThroughputExceededException:
-				fmt.Println(dynamodb.ErrCodeProvisionedThroughputExceededException, aerr.Error())
-			case dynamodb.ErrCodeResourceNotFoundException:
-				fmt.Println(dynamodb.ErrCodeResourceNotFoundException, aerr.Error())
-			case dynamodb.ErrCodeRequestLimitExceeded:
-				fmt.Println(dynamodb.ErrCodeRequestLimitExceeded, aerr.Error())
-			case dynamodb.ErrCodeInternalServerError:
-				fmt.Println(dynamodb.ErrCodeInternalServerError, aerr.Error())
-			default:
-				fmt.Println(aerr.Error())
-			}
-		} else {
-			// Print the error, cast to awserr.Error to get the Code nad message from and error
-			fmt.Println(err.Error())
-		}
-	}
-
-	fmt.Println(result)
-
-	return "Success"
 }
