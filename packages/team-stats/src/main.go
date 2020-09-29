@@ -122,7 +122,19 @@ func main() {
 		teamIDs = append(teamIDs, idString)
 	}
 
-	var teamID = teamIDs[0]
-	var teamRecord = internal.GetTeamRecord(teamID, "test-table")
+	teamID := teamIDs[0]
+	tableName := "test-table"
+	teamRecord, _, getErr := internal.GetTeamRecord(teamID, tableName)
+	// Error encountered during team record retrieval
+	if getErr != nil {
+		return
+	}
+
+	// formattedRecord, formatErr := internal.FormatTeamRecord(teamRecord, teamKey, tableName)
+	// // Error encountered during formatting team record
+	// if formatErr != nil {
+	// 	return
+	// }
+
 	fmt.Println(teamRecord)
 }
