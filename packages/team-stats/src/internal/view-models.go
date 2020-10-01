@@ -56,12 +56,12 @@ type TeamHittingViewModel struct {
 type TeamPitchingViewModel struct {
 	EarnedRunAverage               float64
 	Hits                           int
-	Holds                          string
+	Holds                          int
 	HomeRuns                       int
 	InningsPitched                 float64
 	Losses                         int
 	PitchesPerStart                float64
-	QualityStarts                  string
+	QualityStarts                  int
 	Saves                          int
 	Strikeouts                     int
 	StrikeoutsPerNine              float64
