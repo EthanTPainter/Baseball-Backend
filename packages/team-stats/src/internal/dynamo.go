@@ -153,60 +153,11 @@ func convertBaseStats(record TeamStatsDynamoModel) (TeamBaseViewModel, error) {
 
 // Convert hitting stats from strings to ints, floats
 func convertHittingStats(record TeamHittingDynamoModel) (TeamHittingViewModel, error) {
-	// Convert runs to int
-	runs, runsErr := strconv.Atoi(record.Runs)
-	if runsErr != nil {
-		fmt.Println("Error converting runs (" + record.Runs + ") to int")
-		return TeamHittingViewModel{}, runsErr
-	}
-
-	// Convert hits to int
-	hits, hitsErr := strconv.Atoi(record.Hits)
-	if hitsErr != nil {
-		fmt.Println("Error converting hits (" + record.Hits + ") to int")
-		return TeamHittingViewModel{}, hitsErr
-	}
-
-	// Convert doubles to int
-	doubles, doublesErr := strconv.Atoi(record.Doubles)
-	if doublesErr != nil {
-		fmt.Println("Error converting doubles (" + record.Doubles + ") to int")
-		return TeamHittingViewModel{}, doublesErr
-	}
-
-	// Convert triples to int
-	triples, triplesErr := strconv.Atoi(record.Triples)
-	if triplesErr != nil {
-		fmt.Println("Error converting triples (" + record.Triples + ") to int")
-		return TeamHittingViewModel{}, triplesErr
-	}
-
-	// Convert runs batted in to int
-	runsBattedIn, runsBattedInErr := strconv.Atoi(record.RunsBattedIn)
-	if runsBattedInErr != nil {
-		fmt.Println("Error converting runsBattedIn (" + record.RunsBattedIn + ") to int")
-		return TeamHittingViewModel{}, runsBattedInErr
-	}
-
-	// Convert pitches per plate appearance to int
-	pitchesPerPlateAppear, pitchesPerPlateErr := strconv.Atoi(record.PitchesPerPlateAppearance)
-	if pitchesPerPlateErr != nil {
-		fmt.Println("Error converting pitchesPerPlateAppearance (" + record.PitchesPerPlateAppearance + ") to int")
-		return TeamHittingViewModel{}, pitchesPerPlateErr
-	}
-
-	// Convert walks to int
-	walks, walksErr := strconv.Atoi(record.Walks)
-	if walksErr != nil {
-		fmt.Println("Error converting walks (" + record.Walks + ") to int")
-		return TeamHittingViewModel{}, walksErr
-	}
-
-	// Convert strikeouts to int
-	strikeouts, strikeoutsErr := strconv.Atoi(record.Strikeouts)
-	if strikeoutsErr != nil {
-		fmt.Println("Error converting strikeouts (" + record.Strikeouts + ") to int")
-		return TeamHittingViewModel{}, strikeoutsErr
+	// Convert at bats to int
+	atBats, atBatsErr := strconv.Atoi(record.AtBats)
+	if atBatsErr != nil {
+		fmt.Println("Error converting at bats (" + record.AtBats + ") to int")
+		return TeamHittingViewModel{}, atBatsErr
 	}
 
 	// Convert average to float
@@ -216,11 +167,32 @@ func convertHittingStats(record TeamHittingDynamoModel) (TeamHittingViewModel, e
 		return TeamHittingViewModel{}, averageErr
 	}
 
-	// Convert slugging to float
-	slugging, sluggingErr := strconv.ParseFloat(record.Slugging, 32)
-	if sluggingErr != nil {
-		fmt.Println("Error converting slugging (" + record.Slugging + ") to float64")
-		return TeamHittingViewModel{}, sluggingErr
+	// Convert doubles to int
+	doubles, doublesErr := strconv.Atoi(record.Doubles)
+	if doublesErr != nil {
+		fmt.Println("Error converting doubles (" + record.Doubles + ") to int")
+		return TeamHittingViewModel{}, doublesErr
+	}
+
+	// Convert hits to int
+	hits, hitsErr := strconv.Atoi(record.Hits)
+	if hitsErr != nil {
+		fmt.Println("Error converting hits (" + record.Hits + ") to int")
+		return TeamHittingViewModel{}, hitsErr
+	}
+
+	// Convert home runs to int
+	homeRuns, homeRunsErr := strconv.Atoi(record.HomeRuns)
+	if homeRunsErr != nil {
+		fmt.Println("Error converting home runs (" + record.HomeRuns + ") to int")
+		return TeamHittingViewModel{}, homeRunsErr
+	}
+
+	// Convert on base and slugging to float
+	onBaseAndSlugging, onBaseAndSluggingErr := strconv.ParseFloat(record.OnBaseAndSlugging, 32)
+	if onBaseAndSluggingErr != nil {
+		fmt.Println("Error converting onBaseAndSlugging (" + record.OnBaseAndSlugging + ") to float")
+		return TeamHittingViewModel{}, onBaseAndSluggingErr
 	}
 
 	// Convert on base percentage to float
@@ -228,6 +200,55 @@ func convertHittingStats(record TeamHittingDynamoModel) (TeamHittingViewModel, e
 	if onBasePercentErr != nil {
 		fmt.Println("Error converting onBasePercentage (" + record.OnBasePercentage + ") to float64")
 		return TeamHittingViewModel{}, onBasePercentErr
+	}
+
+	// Convert runs to int
+	runs, runsErr := strconv.Atoi(record.Runs)
+	if runsErr != nil {
+		fmt.Println("Error converting runs (" + record.Runs + ") to int")
+		return TeamHittingViewModel{}, runsErr
+	}
+
+	// Convert runs batted in to int
+	runsBattedIn, runsBattedInErr := strconv.Atoi(record.RunsBattedIn)
+	if runsBattedInErr != nil {
+		fmt.Println("Error converting runsBattedIn (" + record.RunsBattedIn + ") to int")
+		return TeamHittingViewModel{}, runsBattedInErr
+	}
+
+	// Convert slugging to float
+	slugging, sluggingErr := strconv.ParseFloat(record.Slugging, 32)
+	if sluggingErr != nil {
+		fmt.Println("Error converting sluggingErr (" + record.Slugging + ") to float")
+		return TeamHittingViewModel{}, sluggingErr
+	}
+
+	// Convert triples to int
+	triples, triplesErr := strconv.Atoi(record.Triples)
+	if triplesErr != nil {
+		fmt.Println("Error converting triples (" + record.Triples + ") to int")
+		return TeamHittingViewModel{}, triplesErr
+	}
+
+	// Convert strikeouts to int
+	strikeouts, strikeoutsErr := strconv.Atoi(record.Strikeouts)
+	if strikeoutsErr != nil {
+		fmt.Println("Error converting strikeouts (" + record.Strikeouts + ") to int")
+		return TeamHittingViewModel{}, strikeoutsErr
+	}
+
+	// Convert slugging to float
+	slugging, sluggingErr := strconv.ParseFloat(record.Slugging, 32)
+	if sluggingErr != nil {
+		fmt.Println("Error converting slugging (" + record.Slugging + ") to float64")
+		return TeamHittingViewModel{}, sluggingErr
+	}
+
+	// Convert walks to int
+	walks, walksErr := strconv.Atoi(record.Walks)
+	if walksErr != nil {
+		fmt.Println("Error converting walks (" + record.Walks + ") to int")
+		return TeamHittingViewModel{}, walksErr
 	}
 
 	// Convert leading batting average value to float
@@ -286,22 +307,27 @@ func convertHittingStats(record TeamHittingDynamoModel) (TeamHittingViewModel, e
 	}
 
 	return TeamHittingViewModel{
-		Runs:                      runs,
-		Hits:                      hits,
-		Doubles:                   doubles,
-		Triples:                   triples,
-		RunsBattedIn:              runsBattedIn,
-		PitchesPerPlateAppearance: pitchesPerPlateAppear,
-		Walks:                     walks,
-		Strikeouts:                strikeouts,
-		Average:                   average,
-		Slugging:                  slugging,
-		OnBasePercentage:          onBasePercent,
-		LeadingBattingAverage:     leadingBattingAvg,
-		LeadingHomeRuns:           leadingHomeRuns,
-		LeadingRunsBattedIn:       leadingRunsBattedIn,
-		LeadingOnBasePercentage:   leadingOnBasePercent,
-		LeadingHits:               leadingHits,
+		AtBats:            atBats,
+		Average:           average,
+		Doubles:           doubles,
+		Hits:              hits,
+		HomeRuns:          homeRuns,
+		OnBaseAndSlugging: onBaseAndSlugging,
+		OnBasePercentage:  onBasePercent,
+
+		Runs:         runs,
+		RunsBattedIn: runsBattedIn,
+		Slugging:     slugging,
+		Strikeouts:   strikeouts,
+
+		Triples: triples,
+		Walks:   walks,
+
+		LeadingBattingAverage:   leadingBattingAvg,
+		LeadingHomeRuns:         leadingHomeRuns,
+		LeadingRunsBattedIn:     leadingRunsBattedIn,
+		LeadingOnBasePercentage: leadingOnBasePercent,
+		LeadingHits:             leadingHits,
 	}, nil
 }
 
