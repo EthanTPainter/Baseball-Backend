@@ -17,21 +17,23 @@ import (
 //   lambda.Start(HandleRequest)
 // }
 
+var teamAbrs = [30]string{
+	"nyy", "tb", "tor", "bal", "bos",
+	"min", "cle", "chw", "kc", "det",
+	"oak", "hou", "tex", "laa", "sea",
+	"atl", "mia", "nym", "phi", "wsh",
+	"chc", "stl", "mil", "cin", "pit",
+	"lad", "sd", "col", "ari", "sf"}
+
+var teamNames = [30]string{
+	"Yankees", "Rays", "Blue Jays", "Orioles", "Red Sox",
+	"Twins", "Indians", "White Sox", "Royals", "Tigers",
+	"Athletics", "Astros", "Rangers", "Angels", "Mariners",
+	"Braves", "Marlins", "Mets", "Phillies", "Nationals",
+	"Cubs", "Cardinals", "Brewers", "Reds", "Pirates",
+	"Dodgers", "Padres", "Rockies", "Diamondbacks", "Giants"}
+
 func main() {
-	teamAbrs := [30]string{
-		"nyy", "tb", "tor", "bal", "bos",
-		"min", "cle", "chw", "kc", "det",
-		"oak", "hou", "tex", "laa", "sea",
-		"atl", "mia", "nym", "phi", "wsh",
-		"chc", "stl", "mil", "cin", "pit",
-		"lad", "sd", "col", "ari", "sf"}
-	teamNames := [30]string{
-		"Yankees", "Rays", "Blue Jays", "Orioles", "Red Sox",
-		"Twins", "Indians", "White Sox", "Royals", "Tigers",
-		"Athletics", "Astros", "Rangers", "Angels", "Mariners",
-		"Braves", "Marlins", "Mets", "Phillies", "Nationals",
-		"Cubs", "Cardinals", "Brewers", "Reds", "Pirates",
-		"Dodgers", "Padres", "Rockies", "Diamondbacks", "Giants"}
 	var teamIDs []string
 
 	for i, v := range teamAbrs {
@@ -41,14 +43,15 @@ func main() {
 
 	teamID := teamIDs[0]
 	tableName := "test-table"
+
+	// retrieve team record from dynamo
 	teamRecord, teamKey, getErr := internal.GetTeamRecord(teamID, tableName)
-	// Error encountered during team record retrieval
 	if getErr != nil {
 		return
 	}
 
+	// Format the team record from a data model to a view model
 	formattedRecord, formatErr := internal.FormatTeamRecord(teamRecord, teamKey, tableName)
-	// Error encountered during formatting team record
 	if formatErr != nil {
 		return
 	}
