@@ -223,13 +223,6 @@ func convertHittingStats(record TeamHittingDynamoModel) (TeamHittingViewModel, e
 		return TeamHittingViewModel{}, sluggingErr
 	}
 
-	// Convert triples to int
-	triples, triplesErr := strconv.Atoi(record.Triples)
-	if triplesErr != nil {
-		fmt.Println("Error converting triples (" + record.Triples + ") to int")
-		return TeamHittingViewModel{}, triplesErr
-	}
-
 	// Convert strikeouts to int
 	strikeouts, strikeoutsErr := strconv.Atoi(record.Strikeouts)
 	if strikeoutsErr != nil {
@@ -237,11 +230,18 @@ func convertHittingStats(record TeamHittingDynamoModel) (TeamHittingViewModel, e
 		return TeamHittingViewModel{}, strikeoutsErr
 	}
 
-	// Convert slugging to float
-	slugging, sluggingErr := strconv.ParseFloat(record.Slugging, 32)
-	if sluggingErr != nil {
-		fmt.Println("Error converting slugging (" + record.Slugging + ") to float64")
-		return TeamHittingViewModel{}, sluggingErr
+	// Convert total bases to int
+	totalBases, totalBasesErr := strconv.Atoi(record.TotalBases)
+	if totalBasesErr != nil {
+		fmt.Println("Error converting totalBases (" + record.TotalBases + ") to int")
+		return TeamHittingViewModel{}, totalBasesErr
+	}
+
+	// Convert triples to int
+	triples, triplesErr := strconv.Atoi(record.Triples)
+	if triplesErr != nil {
+		fmt.Println("Error converting triples (" + record.Triples + ") to int")
+		return TeamHittingViewModel{}, triplesErr
 	}
 
 	// Convert walks to int
@@ -307,22 +307,20 @@ func convertHittingStats(record TeamHittingDynamoModel) (TeamHittingViewModel, e
 	}
 
 	return TeamHittingViewModel{
-		AtBats:            atBats,
-		Average:           average,
-		Doubles:           doubles,
-		Hits:              hits,
-		HomeRuns:          homeRuns,
-		OnBaseAndSlugging: onBaseAndSlugging,
-		OnBasePercentage:  onBasePercent,
-
-		Runs:         runs,
-		RunsBattedIn: runsBattedIn,
-		Slugging:     slugging,
-		Strikeouts:   strikeouts,
-
-		Triples: triples,
-		Walks:   walks,
-
+		AtBats:                  atBats,
+		Average:                 average,
+		Doubles:                 doubles,
+		Hits:                    hits,
+		HomeRuns:                homeRuns,
+		OnBaseAndSlugging:       onBaseAndSlugging,
+		OnBasePercentage:        onBasePercent,
+		Runs:                    runs,
+		RunsBattedIn:            runsBattedIn,
+		Slugging:                slugging,
+		Strikeouts:              strikeouts,
+		TotalBases:              totalBases,
+		Triples:                 triples,
+		Walks:                   walks,
 		LeadingBattingAverage:   leadingBattingAvg,
 		LeadingHomeRuns:         leadingHomeRuns,
 		LeadingRunsBattedIn:     leadingRunsBattedIn,
@@ -333,18 +331,11 @@ func convertHittingStats(record TeamHittingDynamoModel) (TeamHittingViewModel, e
 
 // Convert pitching stats from strings to ints, floats
 func convertPitchingStats(record TeamPitchingDynamoModel) (TeamPitchingViewModel, error) {
-	// Convert innings pitched to float
-	inningsPitched, inningsPitchedErr := strconv.ParseFloat(record.InningsPitched, 32)
-	if inningsPitchedErr != nil {
-		fmt.Println("Error converting innings pitched (" + record.InningsPitched + ") to float")
-		return TeamPitchingViewModel{}, inningsPitchedErr
-	}
-
-	// Convert runs to int
-	runs, runsErr := strconv.Atoi(record.Runs)
-	if runsErr != nil {
-		fmt.Println("Error converting runs (" + record.Runs + ") to int")
-		return TeamPitchingViewModel{}, runsErr
+	// Convert earned run average to float
+	earnedRunAverage, earnedRunAverageErr := strconv.ParseFloat(record.EarnedRunAverage, 32)
+	if earnedRunAverageErr != nil {
+		fmt.Println("Error converting earnedRunAverage (" + record.EarnedRunAverage + ") to float")
+		return TeamPitchingViewModel{}, earnedRunAverageErr
 	}
 
 	// Convert hits to int
@@ -354,18 +345,11 @@ func convertPitchingStats(record TeamPitchingDynamoModel) (TeamPitchingViewModel
 		return TeamPitchingViewModel{}, hitsErr
 	}
 
-	// Convert doubles to int
-	doubles, doublesErr := strconv.Atoi(record.Doubles)
-	if doublesErr != nil {
-		fmt.Println("Error converting doubles (" + record.Doubles + ") to int")
-		return TeamPitchingViewModel{}, doublesErr
-	}
-
-	// Convert triples to int
-	triples, triplesErr := strconv.Atoi(record.Triples)
-	if triplesErr != nil {
-		fmt.Println("Error converting triples (" + record.Triples + ") to int")
-		return TeamPitchingViewModel{}, triplesErr
+	// Convert holds to int
+	holds, holdsErr := strconv.Atoi(record.Holds)
+	if holdsErr != nil {
+		fmt.Println("Error converting holds (" + record.Holds + ") to int")
+		return TeamPitchingViewModel{}, holdsErr
 	}
 
 	// Convert home runs to int
@@ -375,11 +359,39 @@ func convertPitchingStats(record TeamPitchingDynamoModel) (TeamPitchingViewModel
 		return TeamPitchingViewModel{}, homeRunsErr
 	}
 
-	// Convert walks to int
-	walks, walksErr := strconv.Atoi(record.Walks)
-	if walksErr != nil {
-		fmt.Println("Error converting walks (" + record.Walks + ") to int")
-		return TeamPitchingViewModel{}, walksErr
+	// Convert innings pitched to float
+	inningsPitched, inningsPitchedErr := strconv.ParseFloat(record.InningsPitched, 32)
+	if inningsPitchedErr != nil {
+		fmt.Println("Error converting innings pitched (" + record.InningsPitched + ") to float")
+		return TeamPitchingViewModel{}, inningsPitchedErr
+	}
+
+	// Convert losses to int
+	losses, lossesErr := strconv.Atoi(record.Losses)
+	if lossesErr != nil {
+		fmt.Println("Error converting losses (" + record.Losses + ") to int")
+		return TeamPitchingViewModel{}, lossesErr
+	}
+
+	// Convert pitches per start to float
+	pitchesPerStart, pitchesPerStartErr := strconv.ParseFloat(record.PitchesPerStart, 32)
+	if pitchesPerStartErr != nil {
+		fmt.Println("Error converting pitches per start (" + record.PitchesPerStart + ") to float")
+		return TeamPitchingViewModel{}, pitchesPerStartErr
+	}
+
+	// Convert quality starts to int
+	qualityStarts, qualityStartsErr := strconv.Atoi(record.QualityStarts)
+	if qualityStartsErr != nil {
+		fmt.Println("Error converting quality starts (" + record.QualityStarts + ") to int")
+		return TeamPitchingViewModel{}, qualityStartsErr
+	}
+
+	// Convert saves to int
+	saves, savesErr := strconv.Atoi(record.Saves)
+	if savesErr != nil {
+		fmt.Println("Error converting saves (" + record.Saves + ") to int")
+		return TeamPitchingViewModel{}, savesErr
 	}
 
 	// Convert strikeouts to int
@@ -396,34 +408,24 @@ func convertPitchingStats(record TeamPitchingDynamoModel) (TeamPitchingViewModel
 		return TeamPitchingViewModel{}, strikeoutsPerNineErr
 	}
 
-	// Convert pitches per start to float
-	pitchesPerStart, pitchesPerStartErr := strconv.ParseFloat(record.PitchesPerStart, 32)
-	if pitchesPerStartErr != nil {
-
+	// Convert walks to int
+	walks, walksErr := strconv.Atoi(record.Walks)
+	if walksErr != nil {
+		fmt.Println("Error converting walks (" + record.Walks + ") to int")
+		return TeamPitchingViewModel{}, walksErr
 	}
-
 	// Convert walks plus hits per innings pitched to float
 	walksPlusHitsPerInnings, walksPlusHitsPerInningsErr := strconv.ParseFloat(record.WalksPlusHitsPerInningsPitched, 32)
 	if walksPlusHitsPerInningsErr != nil {
-
+		fmt.Println("Errr converting walks plus hits per innings (" + record.WalksPlusHitsPerInningsPitched + ") to float")
+		return TeamPitchingViewModel{}, walksPlusHitsPerInningsErr
 	}
 
-	// Convert earned run average to float
-	earnedRunAverage, earnedRunAverageErr := strconv.ParseFloat(record.EarnedRunAverage, 32)
-	if earnedRunAverageErr != nil {
-
-	}
-
-	// Convert saves to int
-	saves, savesErr := strconv.Atoi(record.Saves)
-	if savesErr != nil {
-
-	}
-
-	// Convert stolen bases to int
-	stolenBases, stolenBasesErr := strconv.Atoi(record.StolenBases)
-	if stolenBasesErr != nil {
-
+	// Convert wins to int
+	wins, winsErr := strconv.Atoi(record.Wins)
+	if winsErr != nil {
+		fmt.Println("Error converting wins (" + record.Wins + ") to int")
+		return TeamPitchingViewModel{}, winsErr
 	}
 
 	// Convert leading wins to int
@@ -482,20 +484,20 @@ func convertPitchingStats(record TeamPitchingDynamoModel) (TeamPitchingViewModel
 	}
 
 	return TeamPitchingViewModel{
-		InningsPitched:                 inningsPitched,
-		Runs:                           runs,
+		EarnedRunAverage:               earnedRunAverage,
 		Hits:                           hits,
-		Doubles:                        doubles,
-		Triples:                        triples,
+		Holds:                          holds,
 		HomeRuns:                       homeRuns,
+		InningsPitched:                 inningsPitched,
+		Losses:                         losses,
+		PitchesPerStart:                pitchesPerStart,
+		QualityStarts:                  qualityStarts,
+		Saves:                          saves,
 		Strikeouts:                     strikeouts,
 		StrikeoutsPerNine:              strikeoutsPerNine,
 		Walks:                          walks,
 		WalksPlusHitsPerInningsPitched: walksPlusHitsPerInnings,
-		PitchesPerStart:                pitchesPerStart,
-		EarnedRunAverage:               earnedRunAverage,
-		Saves:                          saves,
-		StolenBases:                    stolenBases,
+		Wins:                           wins,
 		LeadingWins:                    leadingWins,
 		LeadingEarnedRunAverage:        leadingEarnedRunAverage,
 		LeadingStrikeouts:              leadingStrikeouts,
