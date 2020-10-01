@@ -12,18 +12,23 @@ type TeamStatsDynamoModel struct {
 
 // TeamHittingDynamoModel is the db model for
 type TeamHittingDynamoModel struct {
-	Runs                      string
-	Hits                      string
-	Doubles                   string
-	Triples                   string
-	RunsBattedIn              string
-	PitchesPerPlateAppearance string
-	Walks                     string
-	Strikeouts                string
-	Average                   string
-	Slugging                  string
-	OnBasePercentage          string
-	LeadingBattingAverage     struct {
+	AtBats            string
+	Average           string
+	Doubles           string
+	Hits              string
+	HomeRuns          string
+	OnBaseAndSlugging string
+	OnBasePercentage  string
+	Runs              string
+	RunsBattedIn      string
+	Slugging          string
+	Strikeouts        string
+	TotalBases        string
+	Triples           string
+	Walks             string
+
+	// Leading Stats
+	LeadingBattingAverage struct {
 		PlayerID string
 		Value    string
 	}
@@ -47,21 +52,22 @@ type TeamHittingDynamoModel struct {
 
 // TeamPitchingDynamoModel is the db model for team pitching stats
 type TeamPitchingDynamoModel struct {
-	InningsPitched                 string
-	Runs                           string
+	EarnedRunAverage               string
 	Hits                           string
-	Doubles                        string
-	Triples                        string
+	Holds                          string
 	HomeRuns                       string
-	Walks                          string
+	InningsPitched                 string
+	Losses                         string
+	PitchesPerStart                string
+	QualityStarts                  string
+	Saves                          string
 	Strikeouts                     string
 	StrikeoutsPerNine              string
-	PitchesPerStart                string
+	Walks                          string
 	WalksPlusHitsPerInningsPitched string
-	EarnedRunAverage               string
-	Saves                          string
-	StolenBases                    string
+	Wins                           string
 
+	// Leading stats
 	LeadingWins struct {
 		PlayerID string
 		Value    string

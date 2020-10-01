@@ -31,40 +31,43 @@ type LeadingFloat struct {
 
 // TeamHittingViewModel is the view model for team hitting stats
 type TeamHittingViewModel struct {
-	Runs                      int
-	Hits                      int
-	Doubles                   int
-	Triples                   int
-	RunsBattedIn              int
-	PitchesPerPlateAppearance int
-	Walks                     int
-	Strikeouts                int
-	Average                   float64
-	Slugging                  float64
-	OnBasePercentage          float64
-	LeadingBattingAverage     LeadingFloat
-	LeadingHomeRuns           LeadingInt
-	LeadingRunsBattedIn       LeadingInt
-	LeadingOnBasePercentage   LeadingFloat
-	LeadingHits               LeadingInt
+	AtBats                  int
+	Average                 float64
+	Doubles                 int
+	Hits                    int
+	HomeRuns                int
+	OnBaseAndSlugging       float64
+	OnBasePercentage        float64
+	Runs                    int
+	RunsBattedIn            int
+	Slugging                float64
+	Strikeouts              int
+	TotalBases              int
+	Triples                 int
+	Walks                   int
+	LeadingBattingAverage   LeadingFloat
+	LeadingHomeRuns         LeadingInt
+	LeadingRunsBattedIn     LeadingInt
+	LeadingOnBasePercentage LeadingFloat
+	LeadingHits             LeadingInt
 }
 
 // TeamPitchingViewModel is the view model for team pitching stats
 type TeamPitchingViewModel struct {
-	InningsPitched                 float64
-	Runs                           int
+	EarnedRunAverage               float64
 	Hits                           int
-	Doubles                        int
-	Triples                        int
+	Holds                          string
 	HomeRuns                       int
-	Walks                          int
+	InningsPitched                 float64
+	Losses                         int
+	PitchesPerStart                float64
+	QualityStarts                  string
+	Saves                          int
 	Strikeouts                     int
 	StrikeoutsPerNine              float64
-	PitchesPerStart                float64
+	Walks                          int
 	WalksPlusHitsPerInningsPitched float64
-	EarnedRunAverage               float64
-	Saves                          int
-	StolenBases                    int
+	Wins                           int
 	LeadingWins                    LeadingInt
 	LeadingEarnedRunAverage        LeadingFloat
 	LeadingStrikeouts              LeadingInt
