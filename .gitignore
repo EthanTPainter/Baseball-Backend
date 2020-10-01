@@ -98,4 +98,7 @@ nginx.conf
 *.aws-sam
 *.toml
 
+# Avoid go main executables
+main
+
 **/*/dist
