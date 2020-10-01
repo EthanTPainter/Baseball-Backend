@@ -2,20 +2,11 @@ package main
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/ethantpainter/Baseball-Backend/packages/team-stats/src/internal"
 )
-
-// import ("fmt" "context" "github.com/aws/aws-lambda-go/lambda")
-// type MyEvent string {
-//   Name string `json:"name"`
-// }
-// type HandleRquest(ctx context.Context, name MyEvent) (string error) {
-//   return fmt.Sprintf("Hello %s!", name.Name), nil
-// }
-// func main() {
-//   lambda.Start(HandleRequest)
-// }
 
 var teamAbrs = [30]string{
 	"nyy", "tb", "tor", "bal", "bos",
@@ -33,7 +24,30 @@ var teamNames = [30]string{
 	"Cubs", "Cardinals", "Brewers", "Reds", "Pirates",
 	"Dodgers", "Padres", "Rockies", "Diamondbacks", "Giants"}
 
-func main() {
+// TeamStatsLambdaEvent is the expected lambda event for the team stats lambda
+type TeamStatsLambdaEvent struct {
+	teamAbrs  []string
+	teamNames []string
+	playerID  string
+}
+
+// TeamStatsResponse is the expected response for the team stats lambda
+type TeamStatsResponse struct {
+	Response     internal.TeamStatsViewModel
+	ErrorMessage string `json:"errorMessage"`
+}
+
+// HandleLambdaEvent handles all lambda event progress
+func HandleLambdaEvent(event TeamStatsLambdaEvent) (TeamStatsResponse, error) {
+	// Check if body is empty
+	if event.teamAbrs == nil && event.teamNames == nil && event.playerID == "" {
+		errorMsg := "Error: no expected parameters found (teamAbrs, teamNames, playerID)"
+		fmt.Println(errorMsg)
+		return TeamStatsResponse{
+			ErrorMessage: errorMsg,
+		}, nil
+	}
+
 	var teamIDs []string
 
 	for i, v := range teamAbrs {
@@ -42,19 +56,29 @@ func main() {
 	}
 
 	teamID := teamIDs[0]
-	tableName := "test-table"
+	tableName := os.Getenv("TABLE_NAME")
 
 	// retrieve team record from dynamo
 	teamRecord, teamKey, getErr := internal.GetTeamRecord(teamID, tableName)
 	if getErr != nil {
-		return
+		return TeamStatsResponse{
+			ErrorMessage: getErr.Error(),
+		}, nil
 	}
 
 	// Format the team record from a data model to a view model
 	formattedRecord, formatErr := internal.FormatTeamRecord(teamRecord, teamKey, tableName)
 	if formatErr != nil {
-		return
+		return TeamStatsResponse{
+			ErrorMessage: formatErr.Error(),
+		}, nil
 	}
 
-	fmt.Println(formattedRecord)
+	return TeamStatsResponse{
+		Response: formattedRecord,
+	}, nil
+}
+
+func main() {
+	lambda.Start(HandleLambdaEvent)
 }
