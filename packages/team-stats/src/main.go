@@ -41,9 +41,9 @@ func HandleLambdaEvent(event internal.TeamStatsLambdaEvent) (internal.TeamStatsR
 		teamIDs = append(teamIDs, idString)
 	}
 	teamID := teamIDs[0]
-	tableName := os.Getenv("TABLE_NAME")
 
 	// Retrieve team record from dynamo
+	tableName := os.Getenv("TABLE_NAME")
 	teamRecord, teamKey, getErr := internal.GetTeamRecord(teamID, tableName)
 	if getErr != nil {
 		return internal.TeamStatsResponse{
