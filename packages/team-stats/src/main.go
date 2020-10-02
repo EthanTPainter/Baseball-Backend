@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -24,44 +23,30 @@ var teamNames = [30]string{
 	"Cubs", "Cardinals", "Brewers", "Reds", "Pirates",
 	"Dodgers", "Padres", "Rockies", "Diamondbacks", "Giants"}
 
-// TeamStatsLambdaEvent is the expected lambda event for the team stats lambda
-type TeamStatsLambdaEvent struct {
-	teamAbrs  []string
-	teamNames []string
-	playerID  string
-}
-
-// TeamStatsResponse is the expected response for the team stats lambda
-type TeamStatsResponse struct {
-	Response     internal.TeamStatsViewModel
-	ErrorMessage string `json:"errorMessage"`
-}
-
 // HandleLambdaEvent handles all lambda event progress
-func HandleLambdaEvent(event TeamStatsLambdaEvent) (TeamStatsResponse, error) {
-	// Check if body is empty
-	if event.teamAbrs == nil && event.teamNames == nil && event.playerID == "" {
-		errorMsg := "Error: no expected parameters found (teamAbrs, teamNames, playerID)"
-		fmt.Println(errorMsg)
-		return TeamStatsResponse{
-			ErrorMessage: errorMsg,
+func HandleLambdaEvent(event internal.TeamStatsLambdaEvent) (internal.TeamStatsResponse, error) {
+	// Parse body if the expected properties exist
+	// Priority: teamAbrs <- teamNames <- playerIDs
+	parsedBody, errorMessage := internal.ParseLambdaEventBody(event, teamAbrs, teamNames)
+	if errorMessage != "" {
+		return internal.TeamStatsResponse{
+			ErrorMessage: errorMessage,
 		}, nil
 	}
 
+	// Generate team IDs
 	var teamIDs []string
-
 	for i, v := range teamAbrs {
 		var idString = v + teamNames[i]
 		teamIDs = append(teamIDs, idString)
 	}
-
 	teamID := teamIDs[0]
 	tableName := os.Getenv("TABLE_NAME")
 
-	// retrieve team record from dynamo
+	// Retrieve team record from dynamo
 	teamRecord, teamKey, getErr := internal.GetTeamRecord(teamID, tableName)
 	if getErr != nil {
-		return TeamStatsResponse{
+		return internal.TeamStatsResponse{
 			ErrorMessage: getErr.Error(),
 		}, nil
 	}
@@ -69,12 +54,12 @@ func HandleLambdaEvent(event TeamStatsLambdaEvent) (TeamStatsResponse, error) {
 	// Format the team record from a data model to a view model
 	formattedRecord, formatErr := internal.FormatTeamRecord(teamRecord, teamKey, tableName)
 	if formatErr != nil {
-		return TeamStatsResponse{
+		return internal.TeamStatsResponse{
 			ErrorMessage: formatErr.Error(),
 		}, nil
 	}
 
-	return TeamStatsResponse{
+	return internal.TeamStatsResponse{
 		Response: formattedRecord,
 	}, nil
 }
