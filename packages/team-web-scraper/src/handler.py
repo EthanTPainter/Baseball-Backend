@@ -66,24 +66,24 @@ def main(event, context):
         "OnBasePercentage": teamBatting["OBP"],
         "OnBaseAndSlugging": teamBatting["OPS"],
         "LeadingBattingAverage": {
-          "playerId": battingLeaders["AVG"]["id"],
-          "value": battingLeaders["AVG"]["val"],
+          "PlayerID": battingLeaders["AVG"]["id"],
+          "Value": battingLeaders["AVG"]["val"],
         },
         "LeadingHomeRuns": {
-          "playerId": battingLeaders["HR"]["id"],
-          "value": battingLeaders["HR"]["val"]
+          "PlayerID": battingLeaders["HR"]["id"],
+          "Value": battingLeaders["HR"]["val"]
         },
         "LeadingRunsBattedIn": {
-          "playerId": battingLeaders["RBI"]["id"],
-          "value": battingLeaders["RBI"]["val"]
+          "PlayerID": battingLeaders["RBI"]["id"],
+          "Value": battingLeaders["RBI"]["val"]
         },
         "LeadingOnBasePercentage": {
-          "playerId": battingLeaders["OBP"]["id"],
-          "value": battingLeaders["OBP"]["val"]
+          "PlayerID": battingLeaders["OBP"]["id"],
+          "Value": battingLeaders["OBP"]["val"]
         },
         "LeadingHits": {
-          "playerId": battingLeaders["H"]["id"],
-          "value": battingLeaders["H"]["val"]
+          "PlayerID": battingLeaders["H"]["id"],
+          "Value": battingLeaders["H"]["val"]
         }
       },
       "Pitching": {
@@ -102,24 +102,24 @@ def main(event, context):
         "WalksPlusHitsPerInningsPitched": teamPitching["WHIP"],
         "EarnedRunAverage": teamPitching["ERA"],
         "LeadingWins": {
-          "playerId": pitchingLeaders["W"]["id"],
-          "value": pitchingLeaders["W"]["val"],
+          "PlayerID": pitchingLeaders["W"]["id"],
+          "Value": pitchingLeaders["W"]["val"],
         },
         "LeadingEarnedRunAverage": {
-          "playerId": pitchingLeaders["ERA"]["id"],
-          "value": pitchingLeaders["ERA"]["val"]
+          "PlayerID": pitchingLeaders["ERA"]["id"],
+          "Value": pitchingLeaders["ERA"]["val"]
         },
         "LeadingStrikeouts": {
-          "playerId": pitchingLeaders["K"]["id"],
-          "value": pitchingLeaders["K"]["val"]
+          "PlayerID": pitchingLeaders["K"]["id"],
+          "Value": pitchingLeaders["K"]["val"]
         },
         "LeadingSaves": {
-          "playerId": pitchingLeaders["SV"]["id"],
-          "value": pitchingLeaders["SV"]["val"]
+          "PlayerID": pitchingLeaders["SV"]["id"],
+          "Value": pitchingLeaders["SV"]["val"]
         },
         "LeadingHolds": {
-          "playerId": pitchingLeaders["HLD"]["id"],
-          "value": pitchingLeaders["HLD"]["val"]
+          "PlayerID": pitchingLeaders["HLD"]["id"],
+          "Value": pitchingLeaders["HLD"]["val"]
         }
       },
       "Fielding": {
